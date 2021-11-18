@@ -10,18 +10,18 @@ const ProductItem = props => {
             <figure className="image is-64x64">
               <img
                 src="https://bulma.io/images/placeholders/128x128.png"
-                alt={product.shortDesc}
+                alt={product.description}
               />
             </figure>
           </div>
           <div className="media-content">
             <b style={{ textTransform: "capitalize" }}>
-              {product.name}{" "}
-              <span className="tag is-primary">${product.price}</span>
+              {product.product_name}{" "}
+              <span className="tag is-primary">${product.price.toFixed(2)}</span>
             </b>
-            <div>{product.shortDesc}</div>
-            {product.stock > 0 ? (
-              <small>{product.stock + " Available"}</small>
+            <div>{product.description}</div>
+            {product.item_in_stock > 0 ? (
+              <small>{product.item_in_stock + " Available"}</small>
             ) : (
               <small className="has-text-danger">Out Of Stock</small>
             )}

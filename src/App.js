@@ -25,7 +25,7 @@ export default class App extends Component {
     let user = localStorage.getItem("user");
     let cart = localStorage.getItem("cart");
 
-    const products = await axios.get('http://localhost:3001/products');
+    const products = await axios.get('http://localhost:8000/products');
     user = user ? JSON.parse(user) : null;
     cart = cart? JSON.parse(cart) : {};
 
@@ -34,7 +34,7 @@ export default class App extends Component {
 
   login = async (email, password) => {
     const res = await axios.post(
-      'http://localhost:3001/login',
+      'http://localhost:8000/login',
       { email, password },
     ).catch((res) => {
       return { status: 401, message: 'Unauthorized' }
@@ -143,7 +143,7 @@ export default class App extends Component {
               <b className="navbar-item is-size-4 ">ecommerce</b>
               <label
                 role="button"
-                class="navbar-burger burger"
+                className="navbar-burger burger"
                 aria-label="menu"
                 aria-expanded="false"
                 data-target="navbarBasicExample"

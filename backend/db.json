@@ -43,6 +43,17 @@
       "price": 109.99,
       "shortDesc": "Nulla facilisi. Curabitur at lacus ac velit ornare lobortis.",
       "description": "Cras sagittis. Praesent nec nisl a purus blandit viverra. Ut leo. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Fusce a quam."
-    }
+    },
+    {
+      "product_id": 3,
+      "brand_id": 1,
+      "product_name": "GEOMETRIC SWEATER",
+      "category_id": 1,
+      "description": "ROOMY SWEATER WITH ROUND NECK AND LONG SLEEVES. RIB TRIM.\r\n\r\nJOIN LIFE\r\nCARE FOR FIBER: AT LEAST 50% RECYCLED POLYESTER",
+      "price": 59.9,
+      "image_path": "image.png",
+      "sku": "5755/302",
+      "item_in_stock": 40
+  }
   ]
 }
