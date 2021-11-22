@@ -64,6 +64,33 @@ export default class App extends Component {
 
       this.setState({ user });
       localStorage.setItem("user", JSON.stringify(user));
+
+      res = await axios.get(process.env.REACT_APP_API_URL + '/cart', {
+        params: {
+          user_id: user.id
+        }
+      });
+
+
+      let cart = this.state.cart;
+
+      for (let cartItem of res.data) {
+        let product = await axios.get(process.env.REACT_APP_API_URL + '/product', {
+          params: {
+            product_id: cartItem.product_id
+          }
+        });
+        if(product.status !== 200) throw new Error();
+        cart[product.data.product_name] = {
+          amount: cartItem.quantity,
+          id: product.data.name,
+          product: product.data
+        }
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      this.setState({ cart });
+
       return true;
     } catch (err) {
       return { status: 401, message: 'Unauthorized' }
