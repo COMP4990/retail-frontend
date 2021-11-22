@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Switch, Route, Link, BrowserRouter as Router } from "react-router-dom";
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';
 
 import AddProduct from './components/AddProduct';
 import Cart from './components/Cart';
 import Login from './components/Login';
+import Register from './components/Register';
 import ProductList from './components/ProductList';
 
 import Context from "./Context";
@@ -32,27 +32,68 @@ export default class App extends Component {
     this.setState({ user,  products: products.data, cart });
   }
 
-  login = async (email, password) => {
-    const res = await axios.post(
-      process.env.REACT_APP_API_URL + '/login',
-      { email, password },
-    ).catch((res) => {
-      return { status: 401, message: 'Unauthorized' }
-    })
-
-    if(res.status === 200) {
-      const { email } = jwt_decode(res.data.accessToken)
-      const user = {
-        email,
-        token: res.data.accessToken,
-        accessLevel: email === 'admin@example.com' ? 0 : 1
-      }
+  register = async (username, password) => {
+    try {
+      await axios.post(
+        process.env.REACT_APP_API_URL + '/register',
+        { username, password },
+      );
+      const res = await axios.post(
+        process.env.REACT_APP_API_URL + '/login',
+        { username, password },
+      );
+      let user = res.data.user;
 
       this.setState({ user });
       localStorage.setItem("user", JSON.stringify(user));
       return true;
-    } else {
-      return false;
+    } catch (err) {
+      return { status: 401, message: 'Unauthorized' }
+    }
+  }
+
+  login = async (username, password) => {
+    try {
+      let res = await axios.post(
+        process.env.REACT_APP_API_URL + '/login',
+        { username, password },
+      )
+      if(res.status !== 200) throw new Error();
+      let user = res.data.user;
+      user.accessLevel = user.email === 'admin@example.com' ? 0 : 1
+
+      this.setState({ user });
+      localStorage.setItem("user", JSON.stringify(user));
+
+      res = await axios.get(process.env.REACT_APP_API_URL + '/cart', {
+        params: {
+          user_id: user.id
+        }
+      });
+
+
+      let cart = this.state.cart;
+
+      for (let cartItem of res.data) {
+        let product = await axios.get(process.env.REACT_APP_API_URL + '/product', {
+          params: {
+            product_id: cartItem.product_id
+          }
+        });
+        if(product.status !== 200) throw new Error();
+        cart[product.data.product_name] = {
+          amount: cartItem.quantity,
+          id: product.data.name,
+          product: product.data
+        }
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      this.setState({ cart });
+
+      return true;
+    } catch (err) {
+      return { status: 401, message: 'Unauthorized' }
     }
   }
 
@@ -75,8 +116,8 @@ export default class App extends Component {
     } else {
       cart[cartItem.id] = cartItem;
     }
-    if (cart[cartItem.id].amount > cart[cartItem.id].product.stock) {
-      cart[cartItem.id].amount = cart[cartItem.id].product.stock;
+    if (cart[cartItem.id].amount > cart[cartItem.id].product.item_in_stock) {
+      cart[cartItem.id].amount = cart[cartItem.id].product.item_in_stock;
     }
     localStorage.setItem("cart", JSON.stringify(cart));
     this.setState({ cart });
@@ -127,6 +168,7 @@ export default class App extends Component {
           removeFromCart: this.removeFromCart,
           addToCart: this.addToCart,
           login: this.login,
+          register: this.register,
           addProduct: this.addProduct,
           clearCart: this.clearCart,
           checkout: this.checkout
@@ -191,6 +233,7 @@ export default class App extends Component {
             <Switch>
               <Route exact path="/" component={ProductList} />
               <Route exact path="/login" component={Login} />
+              <Route exact path="/register" component={Register} />
               <Route exact path="/cart" component={Cart} />
               <Route exact path="/add-product" component={AddProduct} />
               <Route exact path="/products" component={ProductList} />
