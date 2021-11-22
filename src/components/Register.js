@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import withContext from "../withContext";
 
-class Login extends Component {
+class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,27 +13,22 @@ class Login extends Component {
 
   handleChange = e => this.setState({ [e.target.name]: e.target.value, error: "" });
 
-  login = (e) => {
-    e.preventDefault();
-
-    const { username, password } = this.state;
-    if (!username || !password) {
-      return this.setState({ error: "Fill all fields!" });
-    }
-    this.props.context.login(username, password)
-      .then((loggedIn) => {
-        if (!loggedIn) {
-          this.setState({ error: "Invalid Credentails" });
-        }
-      })
-  };
-
   register = (e) => {
     e.preventDefault();
-    this.props.history.push({
-      pathname: `/register`,
-      state: this.state
-    });
+
+    const { username, password, confirm_password } = this.state;
+    if (!username || !password || !confirm_password) {
+      return this.setState({ error: "Fill all fields!" });
+    }
+    if (password !== confirm_password) {
+        return this.setState({ error: "Passwords do not match!" });
+    }
+    this.props.context.register(username, password)
+      .then((success) => {
+        if (!success) {
+          this.setState({ error: "An error occurred creating your account" });
+        }
+      })
   };
 
   render() {
@@ -41,12 +36,12 @@ class Login extends Component {
       <>
         <div className="hero is-primary ">
           <div className="hero-body container">
-            <h4 className="title">Login</h4>
+            <h4 className="title">Register</h4>
           </div>
         </div>
         <br />
         <br />
-        <form onSubmit={this.login}>
+        <form onSubmit={this.register}>
           <div className="columns is-mobile is-centered">
             <div className="column is-one-third">
               <div className="field">
@@ -67,6 +62,15 @@ class Login extends Component {
                   onChange={this.handleChange}
                 />
               </div>
+              <div className="field">
+                <label className="label">Confirm Password: </label>
+                <input
+                  className="input"
+                  type="password"
+                  name="confirm_password"
+                  onChange={this.handleChange}
+                />
+              </div>
               {this.state.error && (
                 <div className="has-text-danger">{this.state.error}</div>
               )}
@@ -75,13 +79,6 @@ class Login extends Component {
                   className="button is-primary is-outlined is-pulled-right"
                 >
                   Submit
-                </button>
-                <button
-                  type="button"
-                  onClick={this.register}
-                  className="button is-secondary is-outlined is-pulled-left"
-                >
-                  Register
                 </button>
               </div>
             </div>
@@ -94,4 +91,4 @@ class Login extends Component {
   }
 }
 
-export default withContext(Login);
+export default withContext(Register);

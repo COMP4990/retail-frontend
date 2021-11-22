@@ -30,7 +30,7 @@ const ProductItem = props => {
                 className="button is-small is-outlined is-primary   is-pulled-right"
                 onClick={() =>
                   props.addToCart({
-                    id: product.name,
+                    id: product.product_name,
                     product,
                     amount: 1
                   })
