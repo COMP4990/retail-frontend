@@ -60,7 +60,7 @@ export default class App extends Component {
       )
       if(res.status !== 200) throw new Error();
       let user = res.data.user;
-      user.accessLevel = user.email === 'admin@example.com' ? 0 : 1
+      user.accessLevel = user.username === 'admin@example.com' ? 0 : 1
 
       this.setState({ user });
       localStorage.setItem("user", JSON.stringify(user));
@@ -109,8 +109,10 @@ export default class App extends Component {
     this.setState({ products }, () => callback && callback());
   };
 
-  addToCart = cartItem => {
+  addToCart = async cartItem => {
     let cart = this.state.cart;
+    let user = this.state.user;
+
     if (cart[cartItem.id]) {
       cart[cartItem.id].amount += cartItem.amount;
     } else {
@@ -119,8 +121,25 @@ export default class App extends Component {
     if (cart[cartItem.id].amount > cart[cartItem.id].product.item_in_stock) {
       cart[cartItem.id].amount = cart[cartItem.id].product.item_in_stock;
     }
+    
     localStorage.setItem("cart", JSON.stringify(cart));
     this.setState({ cart });
+
+    // Update DB with cart
+    if(user) {
+      try {
+        let res = await axios.post(
+          process.env.REACT_APP_API_URL + '/addToCart', { 
+            user_id: user.id,
+            product_id: cartItem.product.product_id
+          },
+        )
+        if(res.status !== 200) throw new Error();
+      } catch(err) {
+        return { status: 401, message: 'Unauthorized' }
+      }
+    }
+    
   };
 
   removeFromCart = cartItemId => {
@@ -137,21 +156,28 @@ export default class App extends Component {
   };
 
   checkout = () => {
-    if (!this.state.user) {
+    const user = this.state.user;
+    const cart = this.state.cart;
+
+    if (!user) {
       this.routerRef.current.history.push("/login");
       return;
     }
 
-    const cart = this.state.cart;
+    axios.post(
+      process.env.REACT_APP_API_URL + '/checkout', { 
+        user_id: user.id
+      },
+    )
 
     const products = this.state.products.map(p => {
       if (cart[p.name]) {
         p.stock = p.stock - cart[p.name].amount;
 
-        axios.put(
-          `http://localhost:3001/products/${p.id}`,
-          { ...p },
-        )
+        // axios.put(
+        //   `http://localhost:3001/products/${p.id}`,
+        //   { ...p },
+        // )
       }
       return p;
     });

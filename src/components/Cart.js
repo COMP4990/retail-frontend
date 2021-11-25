@@ -1,10 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import withContext from "../withContext";
 import CartItem from "./CartItem";
 
 const Cart = props => {
   const { cart } = props.context;
+  const [showModal, setShowModal] = useState(false);
+
   const cartKeys = Object.keys(cart || {});
+
+
+  function Modal(props) {
+    const showModal = props.showModal;
+    console.log("res");
+    if(showModal) {
+      return (
+        <div class="modal is-active">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Success!</p>
+              <button class="delete" aria-label="close" onClick={() => setShowModal(false)}></button>
+            </header>
+            <section class="modal-card-body">
+              Your order has been completed
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" onClick={() => setShowModal(false)}>Back to cart</button>
+            </footer>
+          </div>
+        </div>
+      );
+    }
+    return (<></>)
+  }
+
+
+  function checkout() {
+    props.context.checkout();
+    setShowModal(true);
+  };
+
   return (
     <>
       <div className="hero is-primary">
@@ -13,6 +48,7 @@ const Cart = props => {
         </div>
       </div>
       <br />
+      <Modal showModal={showModal}/>
       <div className="container">
         {cartKeys.length ? (
           <div className="column columns is-multiline">
@@ -35,7 +71,7 @@ const Cart = props => {
                 </button>{" "}
                 <button
                   className="button is-success"
-                  onClick={props.context.checkout}
+                  onClick={checkout}
                 >
                   Checkout
                 </button>

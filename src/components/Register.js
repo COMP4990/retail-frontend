@@ -48,7 +48,7 @@ class Register extends Component {
                 <label className="label">Username: </label>
                 <input
                   className="input"
-                  type="email"
+                  type="text"
                   name="username"
                   onChange={this.handleChange}
                 />
