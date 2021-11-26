@@ -35,6 +35,16 @@ export default class App extends Component {
     this.setState({ user,  products: products.data, brands: brands.data, categories: categories.data, cart });
   }
 
+  getProducts = () => {
+    try {
+      let res = axios.get(process.env.REACT_APP_API_URL + '/products');
+      this.setState({ products: res.data.products.data });
+      return true;
+    } catch (e) {
+      return { status: 401, message: 'Unauthorized' }
+    }
+  };
+
   register = async (username, password) => {
     try {
       await axios.post(
@@ -200,7 +210,8 @@ export default class App extends Component {
           register: this.register,
           addProduct: this.addProduct,
           clearCart: this.clearCart,
-          checkout: this.checkout
+          checkout: this.checkout,
+          getProducts: this.getProducts
         }}
       >
         <Router ref={this.routerRef}>

@@ -11,7 +11,6 @@ const Cart = props => {
 
   function Modal(props) {
     const showModal = props.showModal;
-    console.log("res");
     if(showModal) {
       return (
         <div class="modal is-active">
@@ -37,6 +36,7 @@ const Cart = props => {
 
   function checkout() {
     props.context.checkout();
+    props.context.getProducts();
     setShowModal(true);
   };
 
