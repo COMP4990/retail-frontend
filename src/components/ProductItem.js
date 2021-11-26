@@ -17,7 +17,7 @@ const ProductItem = props => {
           <div className="media-content">
             <b style={{ textTransform: "capitalize" }}>
               {product.product_name}{" "}
-              <span className="tag is-primary">${product.price.toFixed(2)}</span>
+              <span className="tag is-primary">${parseFloat(product.price).toFixed(2)}</span>
             </b>
             <div>{product.description}</div>
             {product.item_in_stock > 0 ? (
