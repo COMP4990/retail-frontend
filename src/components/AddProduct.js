@@ -4,10 +4,17 @@ import { Redirect } from "react-router-dom";
 import axios from 'axios';
 
 const initState = {
-  name: "",
+  product_name: "",
+  brand: {
+    brand_name: "",
+    brand_id: 0
+  },
+  category: {
+    category_name: "",
+    category_id: 0
+  },
   price: "",
-  stock: "",
-  shortDesc: "",
+  item_in_stock: "",
   description: ""
 };
 
@@ -19,23 +26,22 @@ class AddProduct extends Component {
 
   save = async (e) => {
     e.preventDefault();
-    const { name, price, stock, shortDesc, description } = this.state;
-
-    if (name && price) {
-      const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-
+    const { product_name, price, brand, category, item_in_stock, description } = this.state;
+    console.log(this.state);
+    if (product_name && price) {
       await axios.post(
-        'http://localhost:3001/products',
-        { id, name, price, stock, shortDesc, description },
+        process.env.REACT_APP_API_URL + '/addProduct',
+        { product_name, description, price, brand_id: brand.brand_id, category_id: category.category_id, item_in_stock },
       )
 
       this.props.context.addProduct(
         {
-          name,
+          product_name,
+          brand,
+          category,
           price,
-          shortDesc,
           description,
-          stock: stock || 0
+          item_in_stock: item_in_stock || 0
         },
         () => this.setState(initState)
       );
@@ -50,11 +56,34 @@ class AddProduct extends Component {
     }
   };
 
-  handleChange = e => this.setState({ [e.target.name]: e.target.value, error: "" });
+  handleChange = e => {
+    this.setState({ [e.target.name]: e.target.value, error: "" });
+    this.setState({clickedBrands: false});
+    this.setState({clickedCategories: false});
+  }
+
+  handleDropdown = e => {
+    let value = JSON.parse(e.target.getAttribute("value"));
+    this.setState({ [e.target.name]: value, error: "" });
+    this.setState({clickedBrands: false});
+    this.setState({clickedCategories: false});
+  }
+
+  handleClickBrands = () => {
+    this.setState({clickedCategories: false});
+    this.setState({clickedBrands: true});
+  }
+  handleClickCategories = () => {
+    this.setState({clickedBrands: false});
+    this.setState({clickedCategories: true});
+  }
 
   render() {
-    const { name, price, stock, shortDesc, description } = this.state;
-    const { user } = this.props.context;
+    const { product_name, brand, category, price, item_in_stock, description } = this.state;
+    const { user, brands, categories } = this.props.context;
+    var classNameBrands = this.state.clickedBrands ? 'dropdown is-active' : 'dropdown';
+    var classNameCategories = this.state.clickedCategories ? 'dropdown is-active' : 'dropdown';
+
 
     return !(user && user.accessLevel < 1) ? (
       <Redirect to="/" />
@@ -75,11 +104,51 @@ class AddProduct extends Component {
                 <input
                   className="input"
                   type="text"
-                  name="name"
-                  value={name}
+                  name="product_name"
+                  value={product_name}
                   onChange={this.handleChange}
                   required
                 />
+              </div>
+              <div className="field">
+                <label className="label">Brand: </label> 
+                <div className={classNameBrands}>
+                  <div className="dropdown-trigger">
+                    <button className="button" aria-haspopup="true" aria-controls="dropdown-menu3" onClick={this.handleClickBrands}>
+                      <span>{brand.brand_name}</span>
+                      <span className="icon is-small">
+                        <i className="fas fa-angle-down" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  </div>
+                  <div className="dropdown-menu" id="dropdown-menu3" role="menu">
+                    <div className="dropdown-content">
+                      { brands.map((brand, index) => (
+                        <a name="brand" value={JSON.stringify(brand)} onClick={this.handleDropdown} key={index} className="dropdown-item">{brand.brand_name}</a>
+                      )) }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="field">
+                <label className="label">Category: </label> 
+                <div className={classNameCategories}>
+                  <div className="dropdown-trigger">
+                    <button className="button" aria-haspopup="true" aria-controls="dropdown-menu3" onClick={this.handleClickCategories}>
+                      <span>{category.category_name}</span>
+                      <span className="icon is-small">
+                        <i className="fas fa-angle-down" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  </div>
+                  <div className="dropdown-menu" id="dropdown-menu3" role="menu">
+                    <div className="dropdown-content">
+                      { categories.map((category, index) => (
+                        <a name="category" value={JSON.stringify(category)} onClick={this.handleDropdown} key={index} className="dropdown-item">{category.category_name}</a>
+                      )) }
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="field">
                 <label className="label">Price: </label>
@@ -93,22 +162,12 @@ class AddProduct extends Component {
                 />
               </div>
               <div className="field">
-                <label className="label">Available in Stock: </label>
+                <label className="label">Available in item_in_stock: </label>
                 <input
                   className="input"
                   type="number"
-                  name="stock"
-                  value={stock}
-                  onChange={this.handleChange}
-                />
-              </div>
-              <div className="field">
-                <label className="label">Short Description: </label>
-                <input
-                  className="input"
-                  type="text"
-                  name="shortDesc"
-                  value={shortDesc}
+                  name="item_in_stock"
+                  value={item_in_stock}
                   onChange={this.handleChange}
                 />
               </div>

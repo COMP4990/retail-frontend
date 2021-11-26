@@ -26,10 +26,13 @@ export default class App extends Component {
     let cart = localStorage.getItem("cart");
 
     const products = await axios.get(process.env.REACT_APP_API_URL + '/products');
+    const brands = await axios.get(process.env.REACT_APP_API_URL + '/brands');
+    const categories = await axios.get(process.env.REACT_APP_API_URL + '/categories');
+
     user = user ? JSON.parse(user) : null;
     cart = cart? JSON.parse(cart) : {};
 
-    this.setState({ user,  products: products.data, cart });
+    this.setState({ user,  products: products.data, brands: brands.data, categories: categories.data, cart });
   }
 
   register = async (username, password) => {
